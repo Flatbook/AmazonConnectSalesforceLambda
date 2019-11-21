@@ -12,6 +12,9 @@ The key benefits of the adapter:
 * Embed Amazon Connect Call Recordings in the Salesforce record
 * Automatically clean-up open tabs to improve agent efficiency
 * Support Salesforce Sales and Service Console in Classic and Lightening
+* Amazon Connect CTR import
+* Amazon Connect Realtime Queue metrics
+* Amazon Connect Post-call transcription
 
 
 ## AWS Serverless Application Repository
