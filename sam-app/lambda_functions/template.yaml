@@ -878,7 +878,6 @@ Resources:
   sfRealTimeQueueMetricsLoopJobStateMachine:
     Type: AWS::StepFunctions::StateMachine
     Properties:
-      StateMachineName: !Sub '${AWS::StackName}-sfRealTimeQueueMetricsLoopJobStateMachine'
       DefinitionString:
         !Sub
           - |-
