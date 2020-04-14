@@ -54,6 +54,13 @@ def lambda_handler(event, context):
     resp = update(sf=sf, **event['Details']['Parameters'])
   elif (sf_operation == "phoneLookup"):
     resp = phoneLookup(sf, event['Details']['Parameters']['sf_phone'], event['Details']['Parameters']['sf_fields'])
+  elif (sf_operation == 'invokeFlow'):
+    sf_flow_id = str(event['Details']['Parameters']['sf_flow_id'])
+    parameters = dict(event['Details']['Parameters'])
+    del parameters['sf_flow_id']
+    event['Details']['Parameters'] = parameters
+    data = {k: parse_date(v) for k, v in parameters.items()}
+    resp = invoke_flow(sf, sf_flow_id, data)
   else:
     msg = "sf_operation unknown"
     logger.error(msg)
@@ -108,3 +115,5 @@ def phoneLookup(sf, phone, sf_fields):
   result['sf_count'] = count
   return result
 
+def invoke_flow(sf, sf_flow_id, data):
+  return {'Status': sf.invokeFlow(sf_flow_id=sf_flow_id, data={"inputs": [data]})}

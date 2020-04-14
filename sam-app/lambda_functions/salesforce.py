@@ -118,6 +118,11 @@ class Salesforce:
   def is_authenticated(self):
     return self.access_token and self.host
 
+  def invoke_flow(self, sf_flow_id, data):
+    logger.info("Salesforce: Invoke Flow")
+    url = '%s/services/data/%s/actions/custom/flow/%s' % (self.host, self.version, sf_flow_id)
+    resp = self.request.post(url=url, data=data, headers=self.headers)
+
 class Request:
   def post(self, url, headers, data=None, params=None):
     logger.info("POST Requests:\nurl=%s\ndata=%s\nparams=%s" % (url, data, params))
