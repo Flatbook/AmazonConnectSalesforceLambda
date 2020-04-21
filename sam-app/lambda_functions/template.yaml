@@ -134,7 +134,7 @@ Parameters:
     - false
   PostcallTranscribeEnabled:
     Default: 'true'
-    Description: Set to false if post-call transcription should not be enabled on the package level [true].
+    Description: Set to false if post-call transcription should not be enabled on the package level.
     Type: String
     AllowedPattern: ^(true|false)$
     AllowedValues:
@@ -142,7 +142,7 @@ Parameters:
     - false
   PostcallCTRImportEnabled:
     Default: 'true'
-    Description: Set to false if importing CTRs into Salesforce should not be enabled on the package level [true].
+    Description: Set to false if importing CTRs into Salesforce should not be enabled on the package level.
     Type: String
     AllowedPattern: ^(true|false)$
     AllowedValues:
