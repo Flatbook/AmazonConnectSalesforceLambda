@@ -28,7 +28,7 @@ Description: 'Amazon Connect SalesForce Lambda integration'
 
 Parameters:
   SalesforceProduction:
-    Default: true
+    Default: 'true'
     Description: True for Production Environment, False for Sandbox
     Type: String
     AllowedPattern: ^([Tt]rue|[Ff]alse)$
@@ -37,7 +37,7 @@ Parameters:
     - true
     - false
     - false
-    ConstraintDescription: True or False
+    ConstraintDescription: true or false
   SalesforceHost:
     Default: ''
     Description: Your Salesforce Host
@@ -125,7 +125,7 @@ Parameters:
       - ERROR
       - CRITICAL
   PostcallRecordingImportEnabled:
-    Default: true
+    Default: 'true'
     Description: Set to false if importing call recordings into Salesforce should not be enabled on the package level.
     Type: String
     AllowedPattern: ^(true|false)$
@@ -133,15 +133,15 @@ Parameters:
     - true
     - false
   PostcallTranscribeEnabled:
-    Default: true
-    Description: Set to false if post-call transcription should not be enabled on the package level. 
+    Default: 'true'
+    Description: Set to false if post-call transcription should not be enabled on the package level.
     Type: String
     AllowedPattern: ^(true|false)$
     AllowedValues:
     - true
     - false
   PostcallCTRImportEnabled:
-    Default: true
+    Default: 'true'
     Description: Set to false if importing CTRs into Salesforce should not be enabled on the package level.
     Type: String
     AllowedPattern: ^(true|false)$
@@ -149,7 +149,7 @@ Parameters:
     - true
     - false
   HistoricalReportingImportEnabled:
-    Default: true
+    Default: 'true'
     Description: Set to false if importing Historical Reporting into Salesforce should not be enabled.
     Type: String
     AllowedPattern: ^(true|false)$
@@ -157,7 +157,7 @@ Parameters:
     - true
     - false
   RealtimeReportingImportEnabled:
-    Default: true
+    Default: 'true'
     Description: Set to false if importing Realtime Reporting into Salesforce should not be enabled.
     Type: String
     AllowedPattern: ^(true|false)$
@@ -183,7 +183,7 @@ Conditions:
     !Or
     - Condition: PostcallRecordingImportEnabledCondition
     - Condition: PostcallTranscribeEnabledCondition
-  
+
 
 Globals:
     Function:
@@ -196,7 +196,7 @@ Globals:
             Variables:
                 LOGGING_LEVEL:
                     Ref: LambdaLoggingLevel
-        
+
 Resources:
 
   sfLambdaLayer:
@@ -441,7 +441,7 @@ Resources:
             - states:StartExecution
             - states:StopExecution
             Effect: Allow
-            Resource: 
+            Resource:
               Ref: sfTranscribeStateMachine
           Version: '2012-10-17'
         PolicyName: sfExecuteTranscriptionStateMachineStepFunctionPolicy
@@ -461,7 +461,7 @@ Resources:
           PolicyName: sfExecuteTranscriptionStateMachineLockS3Policy
         - Ref: AWS::NoValue
       - Fn::If:
-        - PostcallRecordingImportEnabledCondition 
+        - PostcallRecordingImportEnabledCondition
         - PolicyDocument:
             Statement:
             - Action:
@@ -506,7 +506,7 @@ Resources:
             - arn:aws:logs:*:*:*
           Version: '2012-10-17'
         PolicyName: sfCTRTriggerLogPolicy
-      - Fn::If: 
+      - Fn::If:
         - CTREventSourceMappingCondition
         - PolicyDocument:
             Statement:
@@ -515,7 +515,7 @@ Resources:
               - kinesis:GetRecords
               - kinesis:DescribeStream
               Effect: Allow
-              Resource: 
+              Resource:
                 - Ref: CTRKinesisARN
             Version: '2012-10-17'
           PolicyName: sfCTRTriggerKinesisPolicy
@@ -526,7 +526,7 @@ Resources:
             - lambda:InvokeAsync
             - lambda:InvokeFunction
             Effect: Allow
-            Resource: 
+            Resource:
               - Fn::GetAtt: sfExecuteTranscriptionStateMachine.Arn
               - Fn::GetAtt: sfContactTraceRecord.Arn
           Version: '2012-10-17'
@@ -560,7 +560,7 @@ Resources:
         - PostcallTranscribeEnabledCondition
         - PolicyDocument:
             Statement:
-            - Action: 
+            - Action:
               - s3:GetObject
               - s3:PutObject
               Effect: Allow
@@ -606,7 +606,7 @@ Resources:
           - Action:
             - lambda:InvokeFunction
             Effect: Allow
-            Resource: 
+            Resource:
               - Fn::GetAtt: sfSubmitTranscribeJob.Arn
               - Fn::GetAtt: sfGetTranscribeJobStatus.Arn
               - Fn::GetAtt: sfProcessTranscriptionResult.Arn
@@ -854,9 +854,9 @@ Resources:
     Type: "AWS::Lambda::EventSourceMapping"
     Condition: CTREventSourceMappingCondition
     Properties:
-      EventSourceArn: 
+      EventSourceArn:
         Ref: CTRKinesisARN
-      FunctionName: 
+      FunctionName:
         Fn::GetAtt: sfCTRTrigger.Arn
       StartingPosition: "LATEST"
       BatchSize: 100
@@ -1028,7 +1028,7 @@ Resources:
     Properties:
       Description: Executes Step Functions every minute
       ScheduleExpression: rate(1 minute)
-      State: !If [RealtimeReportingImportEnabledCondition, ENABLED, DISABLED] 
+      State: !If [RealtimeReportingImportEnabledCondition, ENABLED, DISABLED]
       Targets:
         -
           Arn: !Ref sfRealTimeQueueMetricsLoopJobStateMachine
