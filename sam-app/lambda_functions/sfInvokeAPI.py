@@ -116,4 +116,4 @@ def phoneLookup(sf, phone, sf_fields):
   return result
 
 def invoke_flow(sf, sf_flow_id, data):
-  return {'Status': sf.invokeFlow(sf_flow_id=sf_flow_id, data={"inputs": [data]})}
+  return {'Status': sf.invoke_flow(sf_flow_id=sf_flow_id, data={"inputs": [data]})}
