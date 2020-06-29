@@ -35,8 +35,6 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.getLevelName(os.environ["LOGGING_LEVEL"]))
 
-client = boto3.client('lambda')
-
 
 def process_record(record):
     #for record in records:
@@ -174,6 +172,7 @@ def createACContactChannelAnalyticsSalesforceObject(contactId, recordingPath):
         logger.info('calling: %s, contactId=%s' % (arn, contactId))
 
         try:
+            client = boto3.client('lambda')
             response = client.invoke(
                 FunctionName=arn,
                 InvocationType='RequestResponse',
