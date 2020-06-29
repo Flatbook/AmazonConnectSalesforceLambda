@@ -36,15 +36,21 @@ def removekey(d, key):
     return r
 
 def lambda_handler(event, context):
-  logger.info("event: %s" % json.dumps(event))
+  sf_operation = str(event['Details']['Parameters']['sf_operation'])
+  content_type = str(event['Details']['Parameters'].get('ContentType', ''))
+  parameters = dict(event['Details']['Parameters'])
 
   sf = Salesforce()
   sf.sign_in()
 
-  sf_operation = str(event['Details']['Parameters']['sf_operation'])
-  parameters = dict(event['Details']['Parameters'])
+  if content_type == "audio/wav":
+    logger.info("event: CallRecording. ParentId: %s" % str(event['Details']['Parameters']['ParentId']))
+  else:
+    logger.info("event: %s" % json.dumps(event))
+
   del parameters['sf_operation']
   event['Details']['Parameters'] = parameters
+
 
   if(sf_operation == "lookup"):
     resp = lookup(sf=sf, **event['Details']['Parameters'])
