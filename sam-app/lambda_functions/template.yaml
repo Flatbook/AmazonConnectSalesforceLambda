@@ -183,6 +183,7 @@ Conditions:
   PostcallCTRImportEnabledCondition: !Equals [!Ref PostcallCTRImportEnabled, true]
   HistoricalReportingImportEnabledCondition: !Equals [!Ref HistoricalReportingImportEnabled, true]
   RealtimeReportingImportEnabledCondition: !Equals [!Ref RealtimeReportingImportEnabled, true]
+  InvokeMuteCallRecordingLambdaEnabledCondition: !Equals [!Ref InvokeMuteCallRecordingLambdaEnabled, true]
 
   CTREventSourceMappingCondition:
     !Or
@@ -492,6 +493,17 @@ Resources:
               Fn::GetAtt: sfInvokeAPI.Arn
           Version: '2012-10-17'
         PolicyName: sfExecuteTranscriptionStateMachineSfInvokeAPIPolicy
+      - Fn::If:
+        - InvokeMuteCallRecordingLambdaEnabledCondition
+        - PolicyDocument:
+            Statement:
+            - Action:
+              - lambda:InvokeFunction
+              Effect: Allow
+              Resource:
+                Ref: InvokeMuteCallRecordingLambdaARN
+            Version: '2012-10-17'
+          PolicyName: sfExecuteTranscriptionStateMachineMuteCallRecordingPolicy
 
   sfCTRTriggerRole:
     Type: AWS::IAM::Role
