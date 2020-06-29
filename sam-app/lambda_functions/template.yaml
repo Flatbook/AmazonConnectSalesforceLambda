@@ -504,6 +504,7 @@ Resources:
                 Ref: InvokeMuteCallRecordingLambdaARN
             Version: '2012-10-17'
           PolicyName: sfExecuteTranscriptionStateMachineMuteCallRecordingPolicy
+        - Ref: AWS::NoValue
 
   sfCTRTriggerRole:
     Type: AWS::IAM::Role
@@ -837,7 +838,7 @@ Resources:
       Role:
         Fn::GetAtt: sfExecuteTranscriptionStateMachineRole.Arn
       Timeout: 840
-      memorySize: 1024
+      MemorySize: 1024
       Environment:
         Variables:
           MEDIA_FORMAT: wav
@@ -870,7 +871,7 @@ Resources:
           SF_VERSION:
             Ref: SalesforceVersion
           INVOKE_MUTE_CALL_RECORDING_LAMBDA_ENABLED:
-              Ref: InvokeMuteCallRecordingLambdaEnabled
+            Ref: InvokeMuteCallRecordingLambdaEnabled
           INVOKE_MUTE_CALL_RECORDING_LAMBDA_ARN:
             Ref: InvokeMuteCallRecordingLambdaARN
 
