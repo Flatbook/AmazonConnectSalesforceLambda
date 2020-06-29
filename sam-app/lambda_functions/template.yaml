@@ -164,7 +164,18 @@ Parameters:
     AllowedValues:
     - true
     - false
-
+  InvokeMuteCallRecordingLambdaEnabled:
+    Default: 'true'
+    Description: Enable or disable muting call recording before pushing to Salesforce
+    Type: String
+    AllowedPattern: ^(true|false)$
+    AllowedValues:
+      - true
+      - false
+  InvokeMuteCallRecordingLambdaARN:
+    Default: ''
+    Description: ARN of the lambda to perform the call recording muting
+    Type: String
 
 Conditions:
   PostcallRecordingImportEnabledCondition: !Equals [!Ref PostcallRecordingImportEnabled, true ]
@@ -813,7 +824,8 @@ Resources:
       Handler: sfExecuteTranscriptionStateMachine.lambda_handler
       Role:
         Fn::GetAtt: sfExecuteTranscriptionStateMachineRole.Arn
-      Timeout: 120
+      Timeout: 840
+      memorySize: 1024
       Environment:
         Variables:
           MEDIA_FORMAT: wav
@@ -829,6 +841,26 @@ Resources:
             Fn::GetAtt: sfInvokeAPI.Arn
           SF_ADAPTER_NAMESPACE:
             Ref: SalesforceAdapterNamespace
+          SF_HOST:
+            Ref: SalesforceHost
+          SF_PRODUCTION:
+            Ref: SalesforceProduction
+          SF_CONSUMER_KEY:
+            Ref: SalesforceConsumerKey
+          SF_CONSUMER_SECRET:
+            Ref: SalesforceConsumerSecret
+          SF_USERNAME:
+            Ref: SalesforceUsername
+          SF_PASSWORD:
+            Ref: SalesforcePassword
+          SF_ACCESS_TOKEN:
+            Ref: SalesforceAccessToken
+          SF_VERSION:
+            Ref: SalesforceVersion
+          INVOKE_MUTE_CALL_RECORDING_LAMBDA_ENABLED:
+              Ref: InvokeMuteCallRecordingLambdaEnabled
+          INVOKE_MUTE_CALL_RECORDING_LAMBDA_ARN:
+            Ref: InvokeMuteCallRecordingLambdaARN
 
   sfCTRTrigger:
     Type: AWS::Serverless::Function

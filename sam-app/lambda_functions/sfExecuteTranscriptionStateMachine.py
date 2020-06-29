@@ -29,10 +29,13 @@ import os
 import json
 import base64
 import uuid
-from sf_util import split_s3_bucket_key, getBase64fileFromS3, invokeSfAPI, attachFileSaleforceObject
+from sf_util import split_s3_bucket_key, getBase64fileFromS3, invokeSfAPI, get_arg
+import sfInvokeAPI
 import logging
 logger = logging.getLogger()
 logger.setLevel(logging.getLevelName(os.environ["LOGGING_LEVEL"]))
+
+client = boto3.client('lambda')
 
 
 def process_record(record):
@@ -164,6 +167,24 @@ def createACContactChannelAnalyticsSalesforceObject(contactId, recordingPath):
     oMetadata['ACContactChannelAnalyticsId'] = ACContactChannelAnalyticsId
     updateLockMetadata(contactId, oMetadata)
 
+    if get_arg(os.environ, "INVOKE_MUTE_CALL_RECORDING_LAMBDA_ENABLED") == 'true':
+        arn = get_arg(os.environ, "INVOKE_MUTE_CALL_RECORDING_LAMBDA_ARN")
+        input_params = {'contact_id': contactId}
+
+        logger.info('calling: %s, contactId=%s' % (arn, contactId))
+
+        try:
+            response = client.invoke(
+                FunctionName=arn,
+                InvocationType='RequestResponse',
+                Payload=json.dumps(input_params)
+            )
+
+            logger.info('response: %s' % json.load(response))
+        except Exception as e:
+            logger.error('exception: %s' % e)
+            return
+
     #attch the call recording file
     logger.info('Retrieving and attaching call recodring file: %s' % recordingPath)
     attachFileSaleforceObject('CallRecording.wav', 'audio/wav', 'Call Recording', ACContactChannelAnalyticsId, getBase64fileFromS3(recordingPath))
@@ -171,6 +192,21 @@ def createACContactChannelAnalyticsSalesforceObject(contactId, recordingPath):
     return
 
 
+def attachFileSaleforceObject(objName, objContentType, objDescription, objParentId, objBody):
+    # Note:
+    # We cannot call the sfInvoke lambda because it's possible that objBody exceeds the size allowed
+    # for a lambda payload. To bypass this, we simply load the sfInvokeAPI library and make the call.
+
+    sfRequest = {'Details' : {'Parameters':{}}}
+    sfRequest['Details']['Parameters']['sf_operation'] = 'create'
+    sfRequest['Details']['Parameters']['sf_object'] = 'Attachment'
+    sfRequest['Details']['Parameters']['ContentType'] = objContentType
+    sfRequest['Details']['Parameters']['Description'] = objDescription
+    sfRequest['Details']['Parameters']['Name'] = objName
+    sfRequest['Details']['Parameters']['ParentId'] = objParentId
+    sfRequest['Details']['Parameters']['Body'] = objBody
+
+    sfInvokeAPI.lambda_handler(sfRequest, None)
 
 
 
