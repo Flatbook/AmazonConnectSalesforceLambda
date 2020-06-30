@@ -179,7 +179,7 @@ def createACContactChannelAnalyticsSalesforceObject(contactId, recordingPath):
                 Payload=json.dumps(input_params)
             )
 
-            logger.info('response: %s' % json.load(response))
+            logger.info('response: success')
         except Exception as e:
             logger.error('exception: %s' % e)
             return
